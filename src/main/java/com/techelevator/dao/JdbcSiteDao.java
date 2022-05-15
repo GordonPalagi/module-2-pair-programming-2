@@ -19,13 +19,30 @@ public class JdbcSiteDao implements SiteDao {
     @Override
     public List<Site> getSitesThatAllowRVs(int parkId) {
         List<Site> siteWithRV = new ArrayList<>();
-        String sql = "SELECT campground_id, site_number, max_occupancy, accessible, max_rv_length, utilities FROM site WHERE max_rv_length > 0;";
+        String sql = "SELECT s.site_id, s.campground_id, s.site_number, s.max_occupancy, s.accessible, s.max_rv_length, s.utilities " +
+                "FROM site s " +
+                "JOIN campground c ON c.campground_id = s.campground_id " +
+                "JOIN park p ON p.park_id = c.park_id " +
+                "WHERE s.max_rv_length > 0 AND p.park_id = ?;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, parkId);
         while (results.next()) {
             siteWithRV.add(mapRowToSite(results));
         }
         return  siteWithRV;
     }
+//    public List<Site> getSitesThatAllowRVs(int parkId) {
+//        List<Site> siteWithRV = new ArrayList<>();
+//        String sql = "SELECT site_id, site.campground_id, site_number, max_occupancy, accessible, max_rv_length, utilities " +
+//                "FROM site " +
+//                "JOIN campground USING (campground_id) " +
+//                "JOIN park USING (park_id) " +
+//                "WHERE max_rv_length > 0 AND park_id = ?;";
+//        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, parkId);
+//        while (results.next()) {
+//            siteWithRV.add(mapRowToSite(results));
+//        }
+//        return siteWithRV;
+//    }
 
     private Site mapRowToSite(SqlRowSet results) {
         Site site = new Site();
