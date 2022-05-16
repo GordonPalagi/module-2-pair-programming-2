@@ -58,17 +58,18 @@ public class JdbcSiteDao implements SiteDao {
 
     @Override
     public List<Site> getAvailableSites_Should_ReturnSites(int parkId) {
-        List<Site> site = new ArrayList<>();
-        String sql = "SELECT site_id, campground_id, site_number, " +
-                "max_occupancy,accessible, max_rv_length, utilities " +
-                "FROM site JOIN reservation USING (site_id) " +
-                "JOIN campground USING (campground_id) " +
-                "WHERE park_id = ? AND current_date NOT BETWEEN " +
-                "from_date AND to_date;";
+        List<Site> sites = new ArrayList<>();
+        String sql = "SELECT site_id, campground_id, site_number, max_occupancy, accessible, \n" +
+                "max_rv_length, utilities\n" +
+                "FROM site\n" +
+                "LEFT JOIN reservation USING (site_id) \n" +
+                "JOIN campground USING (campground_id)\n" +
+                "RIGHT JOIN park USING (park_id)\n" +
+                "WHERE park_id = ? AND reservation_id IS NULL;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql, parkId);
         while (results.next()) {
-            site.add(mapRowToSite(results));
+            sites.add(mapRowToSite(results));
         }
-        return site;
+        return sites;
     }
 }
