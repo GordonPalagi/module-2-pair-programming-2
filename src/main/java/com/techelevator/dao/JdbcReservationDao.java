@@ -6,6 +6,8 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import javax.sql.DataSource;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 //import static jdk.vm.ci.meta.JavaKind.Int;
 
@@ -38,5 +40,21 @@ public class JdbcReservationDao implements ReservationDao {
         return r;
     }
 
+    @Override
+    public List<Reservation> upcomingReservation( int parkId ){
+        List<Reservation> reservations = new ArrayList<>();
+        String sql = "SELECT reservation_id, site_id, reservation.name, from_date, to_date, create_date\n" +
+                "FROM reservation\n" +
+                "JOIN site USING (site_id) " +
+                "JOIN campground USING (campground_id) " +
+                "LEFT JOIN park USING (park_id) " +
+                "WHERE from_date BETWEEN NOW() AND NOW() + INTERVAL '30 days'" +
+                " AND park.park_id = ?;";
+        SqlRowSet results = jdbc.queryForRowSet(sql, parkId);
+        while (results.next()){
+            reservations.add(mapRowToReservation(results));
+        }
+        return reservations;
+    }
 
 }

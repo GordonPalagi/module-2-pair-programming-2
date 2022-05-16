@@ -24,7 +24,11 @@ public class JdbcSiteDaoTests extends BaseDaoTests {
         assertEquals(2,sites.size());
     }
 
+    @Test
     public void getAvailableSites_Should_ReturnSites() {
+        List<Site> site = dao.getAvailableSites_Should_ReturnSites(1);
+
+        assertEquals(2, site.size());
 
     }
 
